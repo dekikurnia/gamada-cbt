@@ -14,9 +14,16 @@ return new class extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('exam_id')->constrained()->cascadeOnDelete();
+            $table->enum('type', [
+                'multiple_choice', 
+                'essay',
+                'true_false', 
+                'matching', 
+                'ordering'
+            ]);
             $table->text('content');
-            $table->json('options');
-            $table->string('answer'); 
+            $table->json('options')->nullable();
+            $table->json('answer')->nullable()->change();
             $table->timestamps();
         });
     }
