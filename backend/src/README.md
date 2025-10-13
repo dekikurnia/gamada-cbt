@@ -21,7 +21,7 @@ Proyek ini ditujukan untuk digunakan oleh sekolah, lembaga pelatihan, atau organ
 ## 🧱 Teknologi yang Digunakan
 
 ### Backend
-- **Laravel 11 (PHP 8.3+)** → framework utama untuk API dan logic server
+- **Laravel 12 (PHP 8.3+)** → framework utama untuk API dan logic server
 - **MySQL 8** → sistem manajemen basis data
 - **Nginx** → web server yang digunakan dalam container
 - **Docker & Docker Compose** → untuk memisahkan environment development
