@@ -24,6 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/exams/{examId}/reset-user/{userId}', [ExamController::class, 'resetUser']);
 
     // === Resource Routes ===
+    Route::apiResource('departments', DepartmentController::class);
+    Route::apiResource('classrooms', ClassRoomController::class);
     Route::apiResource('exams', ExamController::class);
     Route::apiResource('questions', QuestionController::class);
     Route::apiResource('answers', AnswerController::class);
