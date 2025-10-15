@@ -12,6 +12,18 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    // === Exam Custom Routes ===
+    // 1️⃣ Guru/Admin bisa refresh token ujian
+    Route::post('/exams/{id}/refresh-token', [ExamController::class, 'refreshToken']);
+    
+    // 2️⃣ Siswa join ke ujian pakai token
+    Route::post('/exams/token', [ExamController::class, 'joinByToken']);
+
+    // 🔄 Reset status login siswa (guru/admin)
+    Route::delete('/exams/{examId}/reset-user/{userId}', [ExamController::class, 'resetUser']);
+
+    // === Resource Routes ===
     Route::apiResource('exams', ExamController::class);
     Route::apiResource('questions', QuestionController::class);
     Route::apiResource('answers', AnswerController::class);
