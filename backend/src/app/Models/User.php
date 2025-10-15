@@ -22,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'class_id'
     ];
 
     /**
@@ -45,5 +47,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function examStatuses()
+    {
+        return $this->hasMany(ExamUserStatus::class);
+    }
+
+    public function classRoom()
+    {
+        return $this->belongsTo(ClassRoom::class, 'class_id');
+    }
+
+    public function examsTaught()
+    {
+        return $this->hasMany(Exam::class, 'teacher_id');
     }
 }
