@@ -67,4 +67,8 @@ Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
 
     // 🔹 Kirim jawaban ujian
     Route::apiResource('answers', AnswerController::class)->only(['store', 'index']);
+
+    // Auto submit bisa durasi habis
+    Route::post('/answers/auto-submit', [AnswerController::class, 'autoSubmit']);
+
 });

@@ -88,6 +88,26 @@ class ExamController extends Controller
             return response()->json(['message' => 'Token salah atau kedaluwarsa'], 404);
         }
         
+        $now = now();
+        
+        // Kalau ujian belum mulai
+        if ($exam->start_time && $now->lt($exam->start_time)) {
+            return response()->json(['message' => 'Ujian belum dimulai'], 403);
+        }
+        
+        // Kalau ujian sudah berakhir
+        if ($exam->end_time && $now->gt($exam->end_time)) {
+            return response()->json(['message' => 'Waktu ujian sudah habis'], 403);
+        }
+        
+        // Hitung sisa waktu dalam detik
+        $remaining = $exam->end_time ? $exam->end_time->diffInSeconds($now, false) : $exam->duration * 60;
+        
+        return response()->json([
+            'exam' => $exam,
+            'remaining_time' => $remaining > 0 ? $remaining : 0,
+            'questions' => $exam->questions()->select('id', 'content', 'type', 'options')->get(),
+        ]);
         // Cek apakah siswa sudah aktif di ujian ini
         $status = ExamUserStatus::where('exam_id', $exam->id)
         ->where('user_id', $user->id)
@@ -131,4 +151,25 @@ class ExamController extends Controller
         return response()->json(['message' => 'Status login siswa berhasil direset']);
     }
     
+    public function autoSubmit(Request $request)
+    {
+        $user = $request->user();
+        $examId = $request->input('exam_id');
+        
+        // Ambil semua jawaban siswa untuk ujian ini
+        $answers = Answer::where('user_id', $user->id)
+        ->whereHas('question', fn($q) => $q->where('exam_id', $examId))
+        ->get();
+        
+        // Lakukan penilaian otomatis (optional)
+        $score = $this->calculateScore($examId, $user->id);
+        
+        // Simpan hasil ke tabel results
+        Result::updateOrCreate(
+            ['exam_id' => $examId, 'user_id' => $user->id],
+            ['score' => $score]
+        );
+        
+        return response()->json(['message' => 'Jawaban otomatis disubmit', 'score' => $score]);
+    }
 }
