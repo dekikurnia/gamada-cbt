@@ -13,7 +13,7 @@ class AnswerController extends Controller
      */
     public function index()
     {
-        return response()->json(Answer::with(['question', 'user'])->get());
+        return response()->json(Answer::with(['question', 'user', 'matching', 'ordering'])->get());
     }
 
     /**
@@ -21,14 +21,67 @@ class AnswerController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'user_id' => 'required|integer',
+        $request->validate([
             'question_id' => 'required|exists:questions,id',
-            'response' => 'nullable|array',
+            'response' => 'required',
         ]);
 
-        $answer = Answer::create($data);
-        return response()->json($answer, 201);
+        $user = $request->user();
+        $question = Question::findOrFail($request->question_id);
+
+        // Default nilai
+        $isCorrect = null;
+
+        // Jika soal pilihan ganda atau benar-salah → auto check
+        if (in_array($question->type, ['multiple_choice', 'true_false'])) {
+            $correctAnswer = $question->answer;
+            $response = $request->response;
+
+            // Samakan format (kalau JSON)
+            if (is_array($correctAnswer)) {
+                $isCorrect = json_encode($correctAnswer) === json_encode($response);
+            } else {
+                $isCorrect = $correctAnswer == $response;
+            }
+        }
+
+        // Simpan jawaban
+        $answer = Answer::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'question_id' => $question->id,
+            ],
+            [
+                'response' => $request->response,
+                'is_correct' => $isCorrect,
+            ]
+        );
+
+        // Update skor di tabel results
+        $examId = $question->exam_id;
+        $correctCount = Answer::where('user_id', $user->id)
+            ->whereIn('question_id', $question->exam->questions->pluck('id'))
+            ->where('is_correct', true)
+            ->count();
+
+        $totalQuestions = $question->exam->questions->count();
+        $score = $totalQuestions ? round(($correctCount / $totalQuestions) * 100) : 0;
+
+        Result::updateOrCreate(
+            [
+                'exam_id' => $examId,
+                'user_id' => $user->id,
+            ],
+            [
+                'score' => $score,
+            ]
+        );
+
+        return response()->json([
+            'message' => 'Jawaban disimpan',
+            'is_correct' => $isCorrect,
+            'score' => $score,
+        ]);
     }
 
     /**

@@ -9,7 +9,7 @@ class Answer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'question_id', 'response'];
+    protected $fillable = ['user_id', 'question_id', 'response', 'is_correct'];
 
     protected $casts = [
         'response' => 'array',
