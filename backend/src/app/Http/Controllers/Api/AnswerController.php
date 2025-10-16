@@ -4,21 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Answer;
+use App\Models\Question;
+use App\Models\Result;
 use Illuminate\Http\Request;
 
 class AnswerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return response()->json(Answer::with(['question', 'user', 'matching', 'ordering'])->get());
+        return response()->json(Answer::with(['question', 'user'])->get());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -37,7 +33,6 @@ class AnswerController extends Controller
             $correctAnswer = $question->answer;
             $response = $request->response;
 
-            // Samakan format (kalau JSON)
             if (is_array($correctAnswer)) {
                 $isCorrect = json_encode($correctAnswer) === json_encode($response);
             } else {
@@ -57,24 +52,20 @@ class AnswerController extends Controller
             ]
         );
 
-        // Update skor di tabel results
+        // Hitung ulang skor
         $examId = $question->exam_id;
         $correctCount = Answer::where('user_id', $user->id)
-            ->whereIn('question_id', $question->exam->questions->pluck('id'))
+            ->whereHas('question', fn($q) => $q->where('exam_id', $examId))
             ->where('is_correct', true)
             ->count();
 
-        $totalQuestions = $question->exam->questions->count();
-        $score = $totalQuestions ? round(($correctCount / $totalQuestions) * 100) : 0;
+        $totalQuestions = Question::where('exam_id', $examId)->count();
+        $score = $totalQuestions ? round(($correctCount / $totalQuestions) * 100, 2) : 0;
 
+        // Update ke tabel hasil
         Result::updateOrCreate(
-            [
-                'exam_id' => $examId,
-                'user_id' => $user->id,
-            ],
-            [
-                'score' => $score,
-            ]
+            ['exam_id' => $examId, 'user_id' => $user->id],
+            ['score' => $score],
         );
 
         return response()->json([
@@ -84,32 +75,25 @@ class AnswerController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        return response()->json($answer->load(['question', 'user']));
+        $answer = Answer::with(['question', 'user'])->findOrFail($id);
+        return response()->json($answer);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
+        $answer = Answer::findOrFail($id);
         $validated = $request->validate([
-            'response' => 'nullable|array',
+            'response' => 'nullable',
         ]);
-
         $answer->update($validated);
         return response()->json($answer);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
+        $answer = Answer::findOrFail($id);
         $answer->delete();
         return response()->json(null, 204);
     }
