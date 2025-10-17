@@ -10,18 +10,22 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $request->validate([
+            'login' => 'required|string', // bisa email atau username
+            'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Email atau password salah'], 401);
+        // Cek apakah input adalah email atau username
+        $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        // Attempt login dengan kolom yang sesuai
+        if (!Auth::attempt([$loginField => $request->login, 'password' => $request->password])) {
+            return response()->json(['message' => 'Username atau password salah'], 401);
         }
 
         $user = $request->user();
 
-        // Hapus token lama biar bersih (opsional)
+        // Hapus token lama
         $user->tokens()->delete();
 
         // Buat token baru
@@ -37,6 +41,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
+
         return response()->json(['message' => 'Logout berhasil']);
     }
 }
