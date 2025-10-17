@@ -38,26 +38,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     // 🔹 Reset status login siswa
     Route::delete('/exams/{examId}/reset-user/{userId}', [ExamController::class, 'resetUser']);
-
-    // 🔹 Refresh token ujian
-    Route::post('/exams/{id}/refresh-token', [ExamController::class, 'refreshToken']);
-});
-
-
-# ======================
-# 👩‍🏫 GURU
-# ======================
-Route::middleware(['auth:sanctum', 'role:teacher'])->group(function () {
-
-    // 🔹 CRUD Ujian milik guru
-    Route::apiResource('exams', ExamController::class)->except(['show']);
-
-    // 🔹 Kelola soal & hasil ujian
-    Route::apiResource('questions', QuestionController::class);
-    Route::apiResource('results', ResultController::class);
-
-    // 🔹 Refresh token ujian
-    Route::post('/exams/{id}/refresh-token', [ExamController::class, 'refreshToken']);
 });
 
 
@@ -65,6 +45,17 @@ Route::middleware(['auth:sanctum', 'role:teacher'])->group(function () {
 # 👩‍🏫 GURU & ADMIN (Gabungan)
 # ======================
 Route::middleware(['auth:sanctum', 'role:teacher|admin'])->group(function () {
+
+    // 🔹 CRUD Ujian milik guru/admin
+    Route::apiResource('exams', ExamController::class)->except(['show']);
+
+    // 🔹 Refresh token ujian
+    Route::post('/exams/{id}/refresh-token', [ExamController::class, 'refreshToken']);
+
+    // 🔹 Kelola soal & hasil ujian
+    Route::apiResource('questions', QuestionController::class);
+    Route::apiResource('results', ResultController::class)->only(['index', 'show', 'update']);
+
     // 🔹 Rekap hasil per siswa dan per ujian
     Route::get('/results/user/{userId}', [ResultController::class, 'byUser']);
     Route::get('/results/exam/{examId}', [ResultController::class, 'byExam']);
