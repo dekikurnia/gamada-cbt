@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install xml dom xsl intl opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Set timezone to Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && echo "Asia/Jakarta" > /etc/timezone
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
