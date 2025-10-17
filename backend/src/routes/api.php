@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ExamController;
@@ -24,7 +23,7 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 
 
 # ======================
-# 🧑‍💼 ROLE: ADMIN
+# 🧑‍💼 ADMIN
 # ======================
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
@@ -32,16 +31,21 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('departments', DepartmentController::class);
     Route::apiResource('classrooms', ClassRoomController::class);
 
-    // 🔹 CRUD Ujian
+    // 🔹 CRUD Ujian, Soal, dan Hasil
     Route::apiResource('exams', ExamController::class)->except(['show']);
+    Route::apiResource('questions', QuestionController::class);
+    Route::apiResource('results', ResultController::class);
 
     // 🔹 Reset status login siswa
     Route::delete('/exams/{examId}/reset-user/{userId}', [ExamController::class, 'resetUser']);
+
+    // 🔹 Refresh token ujian
+    Route::post('/exams/{id}/refresh-token', [ExamController::class, 'refreshToken']);
 });
 
 
 # ======================
-# 👩‍🏫 ROLE: GURU
+# 👩‍🏫 GURU
 # ======================
 Route::middleware(['auth:sanctum', 'role:teacher'])->group(function () {
 
@@ -58,7 +62,17 @@ Route::middleware(['auth:sanctum', 'role:teacher'])->group(function () {
 
 
 # ======================
-# 🧑‍🎓 ROLE: SISWA
+# 👩‍🏫 GURU & ADMIN (Gabungan)
+# ======================
+Route::middleware(['auth:sanctum', 'role:teacher|admin'])->group(function () {
+    // 🔹 Rekap hasil per siswa dan per ujian
+    Route::get('/results/user/{userId}', [ResultController::class, 'byUser']);
+    Route::get('/results/exam/{examId}', [ResultController::class, 'byExam']);
+});
+
+
+# ======================
+# 🧑‍🎓 SISWA
 # ======================
 Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
 
@@ -68,7 +82,6 @@ Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
     // 🔹 Kirim jawaban ujian
     Route::apiResource('answers', AnswerController::class)->only(['store', 'index']);
 
-    // Auto submit bisa durasi habis
+    // 🔹 Auto submit (jika waktu habis)
     Route::post('/answers/auto-submit', [AnswerController::class, 'autoSubmit']);
-
 });

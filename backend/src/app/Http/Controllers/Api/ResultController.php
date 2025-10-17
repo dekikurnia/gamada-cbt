@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class ResultController extends Controller
 {
-
+    
     public function index()
     {
         $user = $request->user();
@@ -70,6 +70,33 @@ class ResultController extends Controller
             $result = Result::findOrFail($id);
             $result->delete();
             return response()->json(null, 204);
+        }
+        
+        public function byUser(string $userId)
+        {
+            // Cek apakah user ada
+            $results = Result::with(['exam', 'user'])
+            ->where('user_id', $userId)
+            ->get();
+            
+            if ($results->isEmpty()) {
+                return response()->json(['message' => 'Data hasil ujian tidak ditemukan untuk siswa ini'], 404);
+            }
+            
+            return response()->json($results);
+        }
+        
+        public function byExam(string $examId)
+        {
+            $results = Result::with(['exam', 'user'])
+            ->where('exam_id', $examId)
+            ->get();
+            
+            if ($results->isEmpty()) {
+                return response()->json(['message' => 'Belum ada hasil untuk ujian ini'], 404);
+            }
+            
+            return response()->json($results);
         }
         
     }
