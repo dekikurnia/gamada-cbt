@@ -9,16 +9,16 @@ use Illuminate\Http\Request;
 class QuestionController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
+    * Display a listing of the resource.
+    */
     public function index()
     {
-        return response()->json(Question::with('exam')->get());
+        return response()->json(Question::with('exam')->paginate(20));
     }
-
+    
     /**
-     * Store a newly created resource in storage.
-     */
+    * Store a newly created resource in storage.
+    */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -28,7 +28,7 @@ class QuestionController extends Controller
             'options' => 'nullable|array',
             'answer' => 'nullable|array',
         ]);
-
+        
         $question = Question::create([
             'exam_id' => $validated['exam_id'],
             'type' => $validated['type'],
@@ -36,42 +36,37 @@ class QuestionController extends Controller
             'options' => $validated['options'] ?? null,
             'answer' => $validated['answer'] ?? null,
         ]);
-
-        return response()->json($question, 201);
+        
+        return response()->json($question->load('exam'), 201);
     }
-
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(string $id)
     {
-        return response()->json($question->load('exam'));
+        $question = Question::with('exam')->findOrFail($id);
+        return response()->json($question);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, string $id)
     {
+        $question = Question::findOrFail($id);
+        
         $validated = $request->validate([
             'type' => 'sometimes|required|in:multiple_choice,essay,true_false,matching,ordering',
             'content' => 'sometimes|required|string',
-            'options' => 'nullable|array',
-            'answer' => 'nullable|array',
+            'options' => 'nullable',
+            'answer' => 'nullable',
         ]);
-
+        
         $question->update($validated);
-
+        
         return response()->json($question);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(string $id)
     {
-         $question->delete();
-
+        $question = Question::findOrFail($id);
+        $question->delete();
         return response()->json(null, 204);
     }
+    
 }

@@ -18,7 +18,7 @@ class ExamController extends Controller
      */
     public function index()
     {
-        return response()->json(Exam::with('classRoom', 'teacher')->get());
+        return response()->json(Exam::with('classRoom', 'teacher')->paginate(20));
     }
 
     public function store(Request $request)

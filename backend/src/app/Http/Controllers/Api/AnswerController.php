@@ -12,7 +12,7 @@ class AnswerController extends Controller
 {
     public function index()
     {
-        return response()->json(Answer::with(['question', 'user'])->get());
+        return response()->json(Answer::with(['question', 'user'])->paginate(20));
     }
 
     public function store(Request $request)
