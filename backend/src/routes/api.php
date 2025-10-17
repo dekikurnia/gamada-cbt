@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\ResultController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\ClassRoomController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,3 +77,5 @@ Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
     // 🔹 Auto submit (jika waktu habis)
     Route::post('/answers/auto-submit', [AnswerController::class, 'autoSubmit']);
 });
+
+Route::middleware('auth:sanctum')->get('/me', [UserController::class, 'me']);
