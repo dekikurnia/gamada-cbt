@@ -13,6 +13,8 @@ services:
     command: php artisan serve --host=0.0.0.0 --port=9000
     depends_on:
       - db
+    networks:
+      - gamada-net
 
   db:
     image: mysql:8
@@ -26,6 +28,8 @@ services:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - gamada-net
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -39,5 +43,29 @@ services:
       PMA_PASSWORD: rahasia0909
     depends_on:
       - db
+    networks:
+      - gamada-net
+  
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gamada_cbt_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app         
+      - /app/node_modules      
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - app
+    networks:
+      - gamada-net
+
 volumes:
   db_data:
+
+networks:
+  gamada-net:
+    driver: bridge
