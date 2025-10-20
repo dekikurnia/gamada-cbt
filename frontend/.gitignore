@@ -21,3 +21,17 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# dependencies
+node_modules/
+.svelte-kit/
+build/
+dist/
+
+# env files
+.env
+.env.local
+
+# system files
+.DS_Store
+*.log
