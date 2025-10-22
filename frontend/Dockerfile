@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
+RUN npm install axios
 
 # copy seluruh project (supaya bisa dijalankan)
 COPY . .

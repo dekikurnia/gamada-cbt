@@ -14,7 +14,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",
 		"@eslint/js": "^9.36.0",
-		"@sveltejs/adapter-auto": "^6.1.0",
+		"@sveltejs/adapter-auto": "^6.1.1",
 		"@sveltejs/kit": "^2.43.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.0",
 		"@types/node": "^22",
@@ -31,7 +31,10 @@
 		"vite": "^7.1.7"
 	},
 	"dependencies": {
-		"flowbite": "^2.3.0",
-		"flowbite-svelte": "^0.47.3"
+		"@popperjs/core": "^2.11.8",
+		"axios": "^1.12.2",
+		"flowbite": "^2.5.1",
+		"flowbite-svelte": "^0.46.0",
+		"sweetalert2": "^11.26.3"
 	}
 }
