@@ -8,15 +8,21 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Mengambil data user yang sedang login.
-     * Termasuk relasi kelas & jurusan untuk siswa.
-     */
+    * Mengambil data user yang sedang login.
+    * Termasuk relasi kelas & jurusan untuk siswa.
+    */
     public function me(Request $request)
     {
-        $user = $request->user()->load([
-            'classroom.department' // load kelas dan jurusan
-        ]);
-
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthorized. Token tidak valid atau sudah kedaluwarsa.'
+            ], 401);
+        }
+        
+        $user->load(['classroom.department']);
+        
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
@@ -32,5 +38,6 @@ class UserController extends Controller
                 ] : null,
             ] : null,
         ]);
-    }
+    }          
 }
+        
