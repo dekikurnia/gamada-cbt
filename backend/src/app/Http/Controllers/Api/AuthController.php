@@ -26,7 +26,6 @@ class AuthController extends Controller
         
         $user = $request->user();
         
-        // 🧩 Tambahan logika untuk sistem CBT
         // Cegah login jika siswa masih punya sesi ujian aktif
         if ($user->examStatuses()->where('is_active', true)->exists()) {
             return response()->json([
