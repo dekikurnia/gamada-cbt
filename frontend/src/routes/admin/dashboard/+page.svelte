@@ -67,7 +67,7 @@
   
   const Toast = Swal.mixin({
     toast: true,
-    position: "bottom-end", // 🔸 kanan bawah biar elegan
+    position: "bottom-end",
     showConfirmButton: false,
     background: "#1e293b",
     color: "#f1f5f9",
@@ -185,18 +185,16 @@
 
 
 <style>
-  /* scrollbar minor styling */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   ::-webkit-scrollbar-thumb {
-    background-color: #374151; /* gray-700 */
+    background-color: #374151; 
     border-radius: 10px;
   }
   
-  /* warna progress swal2 (jika pake) */
   .custom-progress-bar {
-    background-color: #ea580c !important; /* orange-600 */
+    background-color: #ea580c !important; 
   }
 </style>
