@@ -3,8 +3,8 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
-RUN npm install axios
+RUN npm install --legacy-peer-deps
+RUN npm install axios --legacy-peer-deps
 
 # copy seluruh project (supaya bisa dijalankan)
 COPY . .
